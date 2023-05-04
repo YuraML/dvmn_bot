@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ```
 DVMN_TOKEN={ваш API токен от платформы dvmn}
 TG_TOKEN={токен вашего телеграм бота}
-TG_CHANNEL_ID={id вашего телеграм бота}
+TG_CHAT_ID={id вашего телеграм бота}
 ```
 
 ### Запуск
