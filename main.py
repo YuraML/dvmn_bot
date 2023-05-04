@@ -11,7 +11,7 @@ def main():
     url = 'https://dvmn.org/api/long_polling/'
     dvmn_token = os.environ['DVMN_TOKEN']
     tg_token = os.environ['TG_TOKEN']
-    chat_id = os.environ['TG_CHANNEL_ID']
+    chat_id = os.environ['TG_CHAT_ID']
 
     headers = {"Authorization": f"Token {dvmn_token}"}
     timestamp = None
@@ -42,8 +42,6 @@ def main():
                                               f' Работа сдана! Ссылка на урок: {lesson_url}')
 
         except requests.exceptions.ReadTimeout:
-            print("Превышено время ожидания запроса. Повторная попытка через 5 секунд.")
-            sleep(5)
             continue
         except requests.exceptions.ConnectionError:
             print("Ошибка соединения. Проверьте подключение к интернету и повторите запрос через 5 секунд.")
