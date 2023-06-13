@@ -18,6 +18,24 @@ class TelegramLogsHandler(logging.Handler):
         self.bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
+logger = logging.getLogger("TelegramLogger")
+
+
+def send_message(review_description, bot, chat_id):
+    lesson_title = review_description['lesson_title']
+    lesson_url = review_description['lesson_url']
+    lesson_is_negative = review_description['is_negative']
+
+    if lesson_is_negative:
+        bot.send_message(chat_id=chat_id,
+                         text=f'У вас проверили работу "{lesson_title}". '
+                              f'Работа не сдана, есть недочеты. Ссылка на урок: {lesson_url}')
+    else:
+        bot.send_message(chat_id=chat_id,
+                         text=f'У вас проверили работу "{lesson_title}".'
+                              f' Работа сдана! Ссылка на урок: {lesson_url}')
+
+
 def main():
     load_dotenv()
     url = 'https://dvmn.org/api/long_polling/'
@@ -31,7 +49,6 @@ def main():
     bot = telegram.Bot(token=tg_token)
     logs_bot = telegram.Bot(token=tg_logs_token)
 
-    logger = logging.getLogger("TelegramLogger")
     logger.setLevel(logging.INFO)
     logger.addHandler(TelegramLogsHandler(logs_bot, chat_id))
     logger.info("Бот запущен")
@@ -44,20 +61,10 @@ def main():
             full_review = response.json()
             timestamp = full_review.get('timestamp') or full_review.get('timestamp_to_request')
             new_attempts = full_review.get('new_attempts')
+
             if new_attempts:
                 for review_description in new_attempts:
-                    lesson_title = review_description['lesson_title']
-                    lesson_url = review_description['lesson_url']
-                    lesson_is_negative = review_description['is_negative']
-
-                    if lesson_is_negative:
-                        bot.send_message(chat_id=chat_id,
-                                         text=f'У вас проверили работу "{lesson_title}".'
-                                              f' Работа не сдана, есть недочеты. Ссылка на урок: {lesson_url}')
-                    else:
-                        bot.send_message(chat_id=chat_id,
-                                         text=f'У вас проверили работу "{lesson_title}".'
-                                              f' Работа сдана! Ссылка на урок: {lesson_url}')
+                    send_message(review_description, bot, chat_id)
 
         except requests.exceptions.ReadTimeout:
             continue
